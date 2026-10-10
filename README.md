@@ -1,4 +1,5 @@
 # Weather MLOps Pipeline
+![CI](https://github.com/JRM1-star/Mlops-Weather-Pipeline/actions/workflows/ci.yml/badge.svg)
 
 End-to-end ML pipeline that forecasts **next-day max temperature** from live, updating data
 (Open-Meteo), with versioned data, tracked experiments, a gated model registry, orchestration,
