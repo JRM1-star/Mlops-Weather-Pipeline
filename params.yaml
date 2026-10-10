@@ -1,0 +1,50 @@
+paths:
+  raw: data/raw/weather.csv
+  processed_dir: data/processed
+  reports_dir: reports
+
+data:
+  source: open-meteo        # open-meteo | synthetic (override with env DATA_SOURCE)
+  latitude: 28.61           # Mumbai
+  longitude: 77.21
+  start_date: "2015-01-01"
+  end_date: null            # null = today minus 5 days (archive API lag)
+
+validation:
+  min_rows: 1000
+  max_staleness_days: 14    # skipped for synthetic data
+
+features:
+  lags: [1, 2, 3, 7]
+  rolling_windows: [3, 7, 14]
+  test_days: 180
+  horizon: 7
+
+train:
+  model: hgb             # ridge | hgb
+  seed: 42
+  ridge:
+    alpha: 1.0
+  hgb:
+    max_iter: 300
+    learning_rate: 0.05
+    max_depth: 6
+    l2_regularization: 1.0
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db   # override with env MLFLOW_TRACKING_URI
+  experiment: weather-next-day-tmax
+  model_name: weather-tmax
+
+promotion:
+  min_improvement: 0.01     # candidate must cut champion MAE by >= 1%
+
+drift:
+  window_days: 60
+  bins: 5
+  psi_threshold: 1.0      # calibrated on synthetic noise (stationary max ~0.65, 2C shift ~1.4); re-tune on real data
+  monitor:
+    - temperature_2m_max
+    - temperature_2m_min
+    - wind_speed_10m_max
+    - shortwave_radiation_sum

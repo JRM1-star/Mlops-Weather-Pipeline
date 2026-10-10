@@ -1,0 +1,17 @@
+[project]
+name = "mlops-weather-pipeline"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Jatin", email = "177595178+JRM1-star@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+mlops-weather-pipeline = "mlops_weather_pipeline:main"
+
+[build-system]
+requires = ["uv_build>=0.12.0,<0.13.0"]
+build-backend = "uv_build"

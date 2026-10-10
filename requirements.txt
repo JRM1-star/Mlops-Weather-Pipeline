@@ -1,0 +1,10 @@
+pandas>=2.0
+numpy>=1.26
+scikit-learn>=1.4
+scipy>=1.11
+mlflow>=3.0
+pandera>=0.20
+prefect>=3.0
+pyyaml>=6.0
+requests>=2.31
+dvc>=3.50

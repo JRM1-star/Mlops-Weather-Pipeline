@@ -1,0 +1,34 @@
+# One command: docker compose up --build
+#   MLflow UI    -> http://localhost:5000
+#   Prefect UI   -> http://localhost:4200
+x-env: &env
+  MLFLOW_TRACKING_URI: sqlite:////shared/mlflow.db
+  MLFLOW_ARTIFACT_ROOT: file:///shared/artifacts
+  PREFECT_API_URL: http://prefect:4200/api
+
+services:
+  prefect:
+    build: .
+    command: prefect server start --host 0.0.0.0
+    ports: ["4200:4200"]
+    volumes: [prefect-data:/root/.prefect]
+
+  mlflow:
+    build: .
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////shared/mlflow.db --default-artifact-root file:///shared/artifacts
+    ports: ["5000:5000"]
+    volumes: [shared:/shared]
+
+  pipeline:
+    build: .
+    command: python -m src.flows serve
+    environment: *env
+    depends_on: [prefect, mlflow]
+    volumes:
+      - shared:/shared
+      - ./data:/app/data
+      - ./reports:/app/reports
+
+volumes:
+  shared:
+  prefect-data:

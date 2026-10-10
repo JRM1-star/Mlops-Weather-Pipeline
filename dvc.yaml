@@ -1,0 +1,42 @@
+stages:
+  ingest:
+    cmd: python -m src.ingest
+    deps: [src/ingest.py]
+    params: [data]
+    outs:
+      - data/raw/weather.csv:
+          persist: true       # ingest is incremental, so keep the previous file
+    always_changed: true      # live source: always check for new data
+
+  validate:
+    cmd: python -m src.validate
+    deps: [src/validate.py, data/raw/weather.csv]
+    params: [validation]
+    outs:
+      - reports/validation.json:
+          cache: false
+
+  features:
+    cmd: python -m src.features
+    deps: [src/features.py, data/raw/weather.csv, reports/validation.json]
+    params: [features]
+    outs: [data/processed]
+
+  train:
+    cmd: python -m src.train
+    deps: [src/train.py, data/processed]
+    params: [train, features]
+    outs:
+      - reports/last_run.json:
+          cache: false
+    metrics:
+      - reports/metrics.json:
+          cache: false
+
+  promote:
+    cmd: python -m src.evaluate_promote
+    deps: [src/evaluate_promote.py, reports/last_run.json, data/processed/test.csv]
+    params: [promotion]
+    outs:
+      - reports/promotion.json:
+          cache: false
